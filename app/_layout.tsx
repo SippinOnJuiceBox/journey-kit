@@ -31,7 +31,7 @@ export default function RootLayout() {
 
       <NavThemeProvider value={NAV_THEME[colorScheme]}>
         <Stack screenOptions={SCREEN_OPTIONS}>
-          <Stack.Screen name="index" options={INDEX_OPTIONS} />
+          <Stack.Screen name="index" options={{ headerShown: false }} />
           <Stack.Screen name="modal" options={MODAL_OPTIONS} />
         </Stack>
       </NavThemeProvider>
@@ -43,12 +43,6 @@ export default function RootLayout() {
 
 const SCREEN_OPTIONS = {
   animation: 'ios_from_right', // for android
-} as const;
-
-const INDEX_OPTIONS = {
-  headerLargeTitle: true,
-  title: 'NativeWindUI',
-  headerRight: () => <SettingsIcon />,
 } as const;
 
 function SettingsIcon() {

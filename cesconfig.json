@@ -1,6 +1,6 @@
 {
   "cesVersion": "2.12.1",
-  "projectName": "my-expo-app",
+  "projectName": "journey-kit-example",
   "packages": [
     {
       "name": "nativewindui",
