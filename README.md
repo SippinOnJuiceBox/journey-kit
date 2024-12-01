@@ -2,6 +2,10 @@
 # React Native Journey Kit
 Simple library to create multi step questionaires / Journeys
 
+### Video demo
+![demo](https://github.com/user-attachments/assets/c30d94cb-29ac-4b7e-b4df-576bbbaf26bb)
+
+
 ## Dependencies
 
 Required peer dependencies:
