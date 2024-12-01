@@ -1,6 +1,12 @@
 
 # React Native Journey Kit
-Simple library to create multi step questionaires / Journeys
+A simple type-safe library to make engaging onboarding flows and surveys in React Native.
+
+• Type-safe form validation with Zod
+• Smooth animated transitions
+• Customizable question components
+• Built-in navigation handling
+• Progressive form state management
 
 ### Video demo
 ![demo](https://github.com/user-attachments/assets/c30d94cb-29ac-4b7e-b4df-576bbbaf26bb)
