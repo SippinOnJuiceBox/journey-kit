@@ -1,5 +1,5 @@
 
-# React Native Journey Kit
+# React Native Journey Kit (still in progress)
 A simple type-safe library to make engaging onboarding flows and surveys in React Native.
 
 • Type-safe form validation with Zod
@@ -7,6 +7,8 @@ A simple type-safe library to make engaging onboarding flows and surveys in Reac
 • Customizable question components
 • Built-in navigation handling
 • Progressive form state management
+
+###This is still ib progress but if you want to use it all you have to do is copy the journey-kit/ folder in /components
 
 ### Video demo
 ![demo](https://github.com/user-attachments/assets/c30d94cb-29ac-4b7e-b4df-576bbbaf26bb)
