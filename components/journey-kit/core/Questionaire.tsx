@@ -178,7 +178,7 @@ export default function Questionnaire({
 
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 80}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
         className="flex-1">
         <Animated.View
           style={{ opacity: fadeAnim }}

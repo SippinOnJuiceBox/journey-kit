@@ -37,8 +37,33 @@ export default function Screen() {
 
   const handleComplete = async (formData: Record<string, any>) => {
     try {
-      console.log('Form completed:', formData);
-      // Navigate or perform other actions here
+      const formattedData = Object.entries(formData)
+        .map(([key, value]) => {
+          // Capitalize and format key
+          const formattedKey = key
+            .split(/(?=[A-Z])/)
+            .join(' ')
+            .toLowerCase()
+            .replace(/^\w/, c => c.toUpperCase());
+  
+          // Format value based on type
+          const formattedValue = Array.isArray(value)
+            ? value.join(', ')
+            : typeof value === 'object'
+            ? JSON.stringify(value)
+            : value;
+  
+          return `${formattedKey}: ${formattedValue}`;
+        })
+        .join('\n');
+  
+      Alert.alert(
+        'Form Submission',
+        formattedData,
+        [
+          { text: 'OK', onPress: () => console.log('OK Pressed') }
+        ]
+      );
     } catch (error) {
       Alert.alert('Error', 'Something went wrong. Please try again.');
     }
