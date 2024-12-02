@@ -1,5 +1,5 @@
 
-# React Native Journey Kit (still in progress)
+# React Native Simple Questionaire Kit (still in progress)
 A simple type-safe library to make engaging onboarding flows and surveys in React Native.
 
 • Type-safe form validation with Zod
