@@ -9,7 +9,7 @@ A simple type-safe library to make engaging onboarding flows and surveys in Reac
 • Built-in navigation handling
 • Progressive form state management
 
-**This is still in progress but if you want to use it all you have to do is copy the journey-kit/ folder in /components**
+**This is still in progress but if you want to use it all you have to do is copy the Question-kit/ folder in /components**
 
 ### Video demo
 ![demo](https://github.com/user-attachments/assets/c30d94cb-29ac-4b7e-b4df-576bbbaf26bb)
@@ -62,7 +62,7 @@ function MyQuestionnaire() {
 Each questionnaire consists of steps, and each step contains questions:
 
 ```typescript
-type JourneyConfig = {
+type QuestionConfig = {
   pageHeader: string;
   pageSubheader?: string;
   questions: Question[];
@@ -132,7 +132,7 @@ Registry.register('custom-input', CustomInputQuestion);
 ### 3. Implement the Questionnaire
 
 ```typescript
-function JourneyFlow() {
+function QuestionFlow() {
   const handleComplete = async (formData) => {
     try {
       await submitData(formData);
@@ -242,7 +242,7 @@ The library uses Tailwind CSS for styling. Customize appearance through classNam
 ### Progress Tracking
 
 ```typescript
-function JourneyWithProgress() {
+function QuestionWithProgress() {
   const [progress, setProgress] = useState(0);
 
   return (
@@ -280,7 +280,7 @@ function ManagedQuestionnaire() {
 ### Questionnaire Props
 | Prop | Type | Description |
 |------|------|-------------|
-| config | JourneyConfig | Questionnaire configuration |
+| config | QuestionConfig | Questionnaire configuration |
 | onCompleted | (data: any) => Promise<void> | Completion callback |
 | initialStep | number | Starting step index |
 | customQuestionComponents | Record<string, Component> | Custom question components |
