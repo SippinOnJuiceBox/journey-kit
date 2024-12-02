@@ -1,7 +1,8 @@
 
-# React Native Journey Kit (still in progress)
+# React Native Simple Questionaire Kit (still in progress)
 A simple type-safe library to make engaging onboarding flows and surveys in React Native.
 
+• Create your own question components
 • Type-safe form validation with Zod
 • Smooth animated transitions
 • Customizable question components
@@ -61,7 +62,7 @@ function MyQuestionnaire() {
 Each questionnaire consists of steps, and each step contains questions:
 
 ```typescript
-type JourneyConfig = {
+type QuestionConfig = {
   pageHeader: string;
   pageSubheader?: string;
   questions: Question[];
@@ -131,7 +132,7 @@ Registry.register('custom-input', CustomInputQuestion);
 ### 3. Implement the Questionnaire
 
 ```typescript
-function JourneyFlow() {
+function QuestionFlow() {
   const handleComplete = async (formData) => {
     try {
       await submitData(formData);
@@ -241,7 +242,7 @@ The library uses Tailwind CSS for styling. Customize appearance through classNam
 ### Progress Tracking
 
 ```typescript
-function JourneyWithProgress() {
+function QuestionWithProgress() {
   const [progress, setProgress] = useState(0);
 
   return (
@@ -279,7 +280,7 @@ function ManagedQuestionnaire() {
 ### Questionnaire Props
 | Prop | Type | Description |
 |------|------|-------------|
-| config | JourneyConfig | Questionnaire configuration |
+| config | QuestionConfig | Questionnaire configuration |
 | onCompleted | (data: any) => Promise<void> | Completion callback |
 | initialStep | number | Starting step index |
 | customQuestionComponents | Record<string, Component> | Custom question components |
