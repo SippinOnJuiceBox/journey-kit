@@ -2,6 +2,7 @@
 # React Native Simple Questionaire Kit (still in progress)
 A simple type-safe library to make engaging onboarding flows and surveys in React Native.
 
+• Create your own question components
 • Type-safe form validation with Zod
 • Smooth animated transitions
 • Customizable question components
