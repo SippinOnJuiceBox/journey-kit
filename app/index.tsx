@@ -1,12 +1,13 @@
+import { Ionicons } from '@expo/vector-icons';
 import * as React from 'react';
-import { Alert } from 'react-native';
+import { Alert, TouchableOpacity, View, Text } from 'react-native';
 import { z } from 'zod';
 
 import Questionnaire from '~/components/journey-kit/core/Questionaire';
-import { JourneyConfig } from '~/components/journey-kit/core/types/journey';
+import { QuestionConfig } from '~/components/journey-kit/core/types/question';
 
 export default function Screen() {
-  const config: JourneyConfig = [
+  const config: QuestionConfig = [
     {
       pageHeader: "Let's get started",
       pageSubheader: 'Tell us about yourself',
@@ -17,6 +18,7 @@ export default function Screen() {
           placeholder: 'Enter your first name',
           type: 'input',
           validation: z.string().min(2, 'Name must be at least 2 characters'),
+          autoComplete: 'email',
         },
       ],
     },
@@ -44,30 +46,62 @@ export default function Screen() {
             .split(/(?=[A-Z])/)
             .join(' ')
             .toLowerCase()
-            .replace(/^\w/, c => c.toUpperCase());
-  
+            .replace(/^\w/, (c) => c.toUpperCase());
+
           // Format value based on type
           const formattedValue = Array.isArray(value)
             ? value.join(', ')
             : typeof value === 'object'
-            ? JSON.stringify(value)
-            : value;
-  
+              ? JSON.stringify(value)
+              : value;
+
           return `${formattedKey}: ${formattedValue}`;
         })
         .join('\n');
-  
-      Alert.alert(
-        'Form Submission',
-        formattedData,
-        [
-          { text: 'OK', onPress: () => console.log('OK Pressed') }
-        ]
-      );
+
+      Alert.alert('Form Submission', formattedData, [
+        { text: 'OK', onPress: () => console.log('OK Pressed') },
+      ]);
     } catch (error) {
       Alert.alert('Error', 'Something went wrong. Please try again.');
     }
   };
 
-  return <Questionnaire config={config} onCompleted={handleComplete} initialValues={{}} />;
+  return (
+    <Questionnaire
+      config={config}
+      onCompleted={handleComplete}
+      // renderHeader={({ currentStep, totalSteps }) => (
+      //   <View className="bg-blue-500 p-4">
+      //     <Text className="text-center text-lg text-white">
+      //       Step {currentStep + 1} of {totalSteps}
+      //     </Text>
+      //   </View>
+      // )}
+      // renderQuestion={(question, defaultRender) => (
+      //   <View className="my-2 rounded-lg bg-gray-50 p-4">
+      //     {defaultRender(question)}
+      //     {question.question && (
+      //       <Text className="mt-2 text-sm text-gray-500">{question.question}</Text>
+      //     )}
+      //   </View>
+      // )}
+      // renderFooter={({ onNext, onBack, isValid, isProcessing }) => (
+      //   <View className="flex-row justify-between gap-4 p-4">
+      //     <TouchableOpacity onPress={onBack} className="flex-1 rounded-full bg-gray-200 p-4">
+      //       <Text className="text-center text-gray-800">Back</Text>
+      //     </TouchableOpacity>
+
+      //     <TouchableOpacity
+      //       onPress={onNext}
+      //       disabled={!isValid || isProcessing}
+      //       className={`flex-1 rounded-full bg-blue-500 p-4 ${!isValid || isProcessing ? 'opacity-50' : ''}`}>
+      //       <Text className="text-center text-white">
+      //         {isProcessing ? 'Processing...' : 'Continue'}
+      //       </Text>
+      //     </TouchableOpacity>
+      //   </View>
+      // )}
+    />
+  );
 }

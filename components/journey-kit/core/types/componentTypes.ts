@@ -1,9 +1,9 @@
 import { ComponentType } from 'react';
 
-import { QuestionComponentProps } from './journey';
+import { QuestionComponentProps } from './question';
 
 /**
- * Registry interface for managing question components in the Journey system.
+ * Registry interface for managing question components in the Question system.
  * This provides type-safe registration and retrieval of components.
  */
 export interface ComponentRegistry {

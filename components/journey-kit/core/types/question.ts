@@ -8,7 +8,7 @@ export type IconType = ReactNode;
 
 /**
  * Base interface that defines the common properties all question types must implement.
- * This ensures consistency across different question types in the Journey flow.
+ * This ensures consistency across different question types in the Question flow.
  */
 export interface BaseQuestion {
   /** Unique identifier for the question field */
@@ -26,7 +26,7 @@ export interface BaseQuestion {
  * Question components will augment this interface with their specific properties.
  * @example
  * ```typescript
- * declare module './Journey' {
+ * declare module './Question' {
  *   interface QuestionTypes {
  *     input: {
  *       placeholder?: string;
@@ -42,30 +42,30 @@ export interface QuestionTypes {}
  * for each registered question type. This type is automatically updated
  * when new question types are added to QuestionTypes.
  */
-export type JourneyQuestion = BaseQuestion &
+export type QuestionQuestion = BaseQuestion &
   {
     [K in keyof QuestionTypes]: { type: K } & QuestionTypes[K];
   }[keyof QuestionTypes];
 
 /**
- * Defines the structure of a single step in the Journey process.
+ * Defines the structure of a single step in the Question process.
  * Each step can contain multiple questions and optional header text.
  */
-export interface JourneyStep {
+export interface QuestionStep {
   /** Main header text for the step */
   pageHeader: string;
   /** Optional subheader text providing additional context */
   pageSubheader?: string;
   /** Array of questions to be displayed in this step */
-  questions: JourneyQuestion[];
+  questions: QuestionQuestion[];
 }
 
 /**
- * Configuration type for the entire Journey flow.
+ * Configuration type for the entire Question flow.
  * Consists of an array of steps that will be displayed in sequence.
  * @example
  * ```typescript
- * const config: JourneyConfig = [{
+ * const config: QuestionConfig = [{
  *   pageHeader: "Personal Info",
  *   questions: [{
  *     type: 'input',
@@ -76,7 +76,7 @@ export interface JourneyStep {
  * }];
  * ```
  */
-export type JourneyConfig = JourneyStep[];
+export type QuestionConfig = QuestionStep[];
 
 /**
  * Base props interface that all question components will receive.
@@ -84,7 +84,7 @@ export type JourneyConfig = JourneyStep[];
  */
 export interface QuestionComponentProps {
   /** The question configuration object */
-  question: JourneyQuestion;
+  question: QuestionQuestion;
   /** Current value of the question field */
   value: any;
   /**

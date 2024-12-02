@@ -1,6 +1,7 @@
 import { ComponentType } from 'react';
-import { QuestionComponentProps } from './journey';
+
 import { ComponentRegistry } from './componentTypes';
+import { QuestionComponentProps } from './question';
 
 /**
  * Internal storage for registered question components

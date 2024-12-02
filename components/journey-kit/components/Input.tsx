@@ -1,20 +1,14 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  TextInputProps,
-  NativeSyntheticEvent,
-  TextInputFocusEventData,
-} from 'react-native';
+/* eslint-disable @typescript-eslint/no-redeclare */
+import React, { useState, useCallback } from 'react';
+import { View, Text, TextInput, TextInputProps } from 'react-native';
 
 import { Registry } from '../core/types/QuestionComponents';
-import { QuestionComponentProps, BaseQuestion, QuestionTypes } from '../core/types/journey';
+import { QuestionComponentProps, BaseQuestion, QuestionTypes } from '../core/types/question';
 
 // Declare input question type
-declare module '../core/types/journey' {
+declare module '../core/types/Question' {
   interface QuestionTypes {
-    input: {
+    input: Partial<TextInputProps> & {
       placeholder?: string;
     };
   }
@@ -30,75 +24,23 @@ interface InputProps extends Omit<QuestionComponentProps, 'question'> {
   inputProps?: Partial<TextInputProps>;
 }
 
-function InputQuestion({
-  question,
-  value = '',
-  onChange,
-  debounceTime = 100,
-  inputProps = {},
-}: InputProps) {
+function InputQuestion({ question, value = '', onChange }: InputProps) {
   const [isFocused, setIsFocused] = useState(false);
-  const [localValue, setLocalValue] = useState(value?.toString() || '');
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    setLocalValue(value?.toString() || '');
-  }, [value]);
 
   const handleChange = useCallback(
     (text: string) => {
-      setLocalValue(text);
-      setError(null);
-
-      if (!text && !question.validation) {
-        setError(null);
-      }
+      onChange(question.name, text);
     },
-    [question.validation]
+    [onChange, question.name]
   );
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (localValue !== value) {
-        if (question.validation) {
-          try {
-            question.validation.parse(localValue);
-            setError(null);
-          } catch (err) {
-            if (err instanceof Error) {
-              setError(err.message);
-            }
-            return;
-          }
-        }
-        onChange(question.name, localValue);
-      }
-    }, debounceTime);
+  const handleFocus = useCallback(() => {
+    setIsFocused(true);
+  }, []);
 
-    return () => clearTimeout(timer);
-  }, [localValue, value, onChange, question.name, question.validation, debounceTime]);
-
-  const handleFocus = useCallback(
-    (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
-      setIsFocused(true);
-      inputProps.onFocus?.(e);
-    },
-    [inputProps]
-  );
-
-  const handleBlur = useCallback(
-    (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
-      setIsFocused(false);
-      inputProps.onBlur?.(e);
-    },
-    [inputProps]
-  );
-
-  const getBorderColor = () => {
-    if (error) return '#EF4444';
-    if (isFocused) return '#797269';
-    return 'transparent';
-  };
+  const handleBlur = useCallback(() => {
+    setIsFocused(false);
+  }, []);
 
   return (
     <View className="mb-4">
@@ -108,30 +50,24 @@ function InputQuestion({
 
       <View
         style={{
-          borderColor: getBorderColor(),
+          borderColor: isFocused ? '#797269' : 'transparent',
         }}
         className="rounded-2xl border-2 bg-stone-100">
         <TextInput
           className="p-4"
           placeholder={question.placeholder}
           placeholderTextColor="#797269"
-          value={localValue}
+          value={value}
           onChangeText={handleChange}
-          autoCapitalize="none"
-          autoCorrect={false}
           onFocus={handleFocus}
           onBlur={handleBlur}
           accessibilityLabel={question.question}
           accessibilityHint={question.placeholder}
-          {...inputProps}
+          autoCapitalize="none"
+          autoCorrect={false}
+          {...question} // Spread all TextInput props from question
         />
       </View>
-
-      {error && (
-        <Text className="mt-1 text-sm text-red-500" accessibilityRole="alert">
-          {error}
-        </Text>
-      )}
     </View>
   );
 }

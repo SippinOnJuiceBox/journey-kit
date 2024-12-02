@@ -1,12 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import { z } from 'zod';
 
-import { JourneyStep } from '../types/journey';
+import { QuestionStep } from '../types/question';
 
 /**
  * Hook for managing questionnaire step validation
  *
- * @param {JourneyStep} currentStep - Current questionnaire step configuration
+ * @param {QuestionStep} currentStep - Current questionnaire step configuration
  * @param {Record<string, any>} formData - Form data to validate
  *
  * @returns {Object} Validation state and controls
@@ -14,7 +14,7 @@ import { JourneyStep } from '../types/journey';
  * @property {() => boolean} validateStep - Function to manually trigger validation
  */
 export const useQuestionnaireValidation = (
-  currentStep: JourneyStep,
+  currentStep: QuestionStep,
   formData: Record<string, any>
 ) => {
   const [isStepValid, setIsStepValid] = useState(false);
@@ -24,7 +24,7 @@ export const useQuestionnaireValidation = (
    * Only includes questions that have validation rules defined
    *
    * @returns {z.ZodObject} Combined validation schema for current step
-  */
+   */
   const createValidationSchema = useCallback(() => {
     return z.object(
       currentStep.questions.reduce(
@@ -44,7 +44,7 @@ export const useQuestionnaireValidation = (
    * Logs first validation error if validation fails
    *
    * @returns {boolean} Whether validation passed
-  */
+   */
   const validateStep = useCallback(() => {
     const schema = createValidationSchema();
 

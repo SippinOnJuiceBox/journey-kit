@@ -17,7 +17,7 @@ type ProgressBarProps = {
   total: number;
 };
 
-export default function ProgressBar({ current, total }: ProgressBarProps) {
+export function ProgressBar({ current, total }: ProgressBarProps) {
   // Shared value for tracking animation progress
   const progress = useSharedValue(0);
 
@@ -37,10 +37,7 @@ export default function ProgressBar({ current, total }: ProgressBarProps) {
 
   return (
     <View className="h-2 flex-1 overflow-hidden rounded-full bg-stone-100">
-      <Animated.View
-        className="h-full rounded-full bg-stone-700"
-        style={animatedStyle}
-      />
+      <Animated.View className="h-full rounded-full bg-stone-700" style={animatedStyle} />
     </View>
   );
 }

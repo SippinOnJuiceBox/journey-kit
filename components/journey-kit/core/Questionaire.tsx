@@ -12,15 +12,15 @@ import {
 } from 'react-native';
 
 import '../components/index';
-import ContinueButton from './components/ContinueButton';
-import ProgressBar from './components/ProgressBar';
+
+import { ContinueButton, ProgressBar } from './components';
 import { useQuestionnaireAnimation } from './hooks/useQuestionaireAnimation';
 import { useQuestionnaireValidation } from './hooks/useQuestionaireValidation';
 import { Registry } from './types/QuestionComponents';
-import { JourneyConfig, JourneyQuestion, QuestionComponentProps } from './types/journey';
+import { QuestionConfig, QuestionQuestion, QuestionComponentProps } from './types/question';
 
 interface QuestionnaireProps {
-  config: JourneyConfig;
+  config: QuestionConfig;
   onCompleted: (formData: Record<string, any>) => Promise<void>;
   onStepChange?: (currentStep: number) => void;
   initialStep?: number;
@@ -28,6 +28,23 @@ interface QuestionnaireProps {
   hideHeader?: boolean;
   initialValues?: Record<string, any>;
   defaultBackPath?: Href;
+  // New render props
+  renderHeader?: (props: {
+    currentStep: number;
+    totalSteps: number;
+    onBack: () => void;
+  }) => React.ReactNode;
+  renderQuestion?: (
+    question: QuestionQuestion,
+    defaultRender: (question: QuestionQuestion) => React.ReactNode
+  ) => React.ReactNode;
+  renderFooter?: (props: {
+    onNext: () => void;
+    isValid: boolean;
+    isProcessing: boolean;
+    isUploading: boolean;
+    onBack: () => void;
+  }) => React.ReactNode;
 }
 
 export default function Questionnaire({
@@ -39,6 +56,9 @@ export default function Questionnaire({
   hideHeader,
   initialValues = {},
   defaultBackPath = '/' as Href,
+  renderHeader,
+  renderQuestion,
+  renderFooter,
 }: QuestionnaireProps) {
   const [currentStep, setCurrentStep] = useState(initialStep);
   const [formData, setFormData] = useState<Record<string, any>>(initialValues);
@@ -68,11 +88,6 @@ export default function Questionnaire({
       router.push(defaultBackPath);
     }
   }, [currentStep, fadeOut, fadeIn, router, stepHistory, defaultBackPath]);
-
-  const mergedQuestionComponents = useMemo(
-    () => ({ ...Registry.getAll(), ...customQuestionComponents }),
-    [customQuestionComponents]
-  );
 
   const currentStepData = useMemo(() => config[currentStep], [config, currentStep]);
 
@@ -139,8 +154,8 @@ export default function Questionnaire({
     stepHistory,
   ]);
 
-  const renderQuestion = useCallback(
-    (question: JourneyQuestion) => {
+  const defaultQuestionRenderer = useCallback(
+    (question: QuestionQuestion) => {
       try {
         const QuestionComponent = Registry.get(question.type);
 
@@ -162,18 +177,28 @@ export default function Questionnaire({
   return (
     <SafeAreaView className="flex-1 bg-white">
       {!hideHeader && (
-        <View className="mr-4 flex-row items-center gap-4 rounded-full p-4">
-          <TouchableOpacity onPress={handleBack}>
-            <Ionicons
-              name="arrow-back"
-              size={28}
-              color="#000000"
-              className="rounded-full"
-              accessibilityLabel="Go back"
-            />
-          </TouchableOpacity>
-          <ProgressBar current={currentStep} total={config.length} />
-        </View>
+        <>
+          {renderHeader ? (
+            renderHeader({
+              currentStep,
+              totalSteps: config.length,
+              onBack: handleBack,
+            })
+          ) : (
+            <View className="mr-4 flex-row items-center gap-4 rounded-full p-4">
+              <TouchableOpacity onPress={handleBack}>
+                <Ionicons
+                  name="arrow-back"
+                  size={28}
+                  color="#000000"
+                  className="rounded-full"
+                  accessibilityLabel="Go back"
+                />
+              </TouchableOpacity>
+              <ProgressBar current={currentStep} total={config.length} />
+            </View>
+          )}
+        </>
       )}
 
       <KeyboardAvoidingView
@@ -194,16 +219,28 @@ export default function Questionnaire({
 
           {currentStepData.questions.map((question, index) => (
             <View key={`${question.name}-${index}`} className="mt-2">
-              {renderQuestion(question)}
+              {renderQuestion
+                ? renderQuestion(question, defaultQuestionRenderer)
+                : defaultQuestionRenderer(question)}
             </View>
           ))}
         </Animated.View>
 
         <View className="p-4">
-          <ContinueButton
-            onPress={handleNext}
-            disabled={!isStepValid || isUploading || isProcessing}
-          />
+          {renderFooter ? (
+            renderFooter({
+              onNext: handleNext,
+              isValid: isStepValid,
+              isProcessing,
+              isUploading,
+              onBack: handleBack,
+            })
+          ) : (
+            <ContinueButton
+              onPress={handleNext}
+              disabled={!isStepValid || isUploading || isProcessing}
+            />
+          )}
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
