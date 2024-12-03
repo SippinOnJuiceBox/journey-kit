@@ -22,9 +22,10 @@ interface InputProps extends Omit<QuestionComponentProps, 'question'> {
   question: InputQuestion;
   debounceTime?: number;
   inputProps?: Partial<TextInputProps>;
+  error?: string; // Add error to props
 }
 
-function InputQuestion({ question, value = '', onChange }: InputProps) {
+function InputQuestion({ question, value = '', onChange, error }: InputProps) {
   const [isFocused, setIsFocused] = useState(false);
 
   const handleChange = useCallback(
@@ -50,24 +51,42 @@ function InputQuestion({ question, value = '', onChange }: InputProps) {
 
       <View
         style={{
-          borderColor: isFocused ? '#797269' : 'transparent',
+          borderColor: error
+            ? '#ef4444' // Red border for error
+            : isFocused
+              ? '#797269'
+              : 'transparent',
         }}
-        className="rounded-2xl border-2 bg-stone-100">
+        className={`rounded-2xl border-2 ${error ? 'bg-red-50' : 'bg-stone-100'}`}>
         <TextInput
           className="p-4"
           placeholder={question.placeholder}
-          placeholderTextColor="#797269"
+          placeholderTextColor={error ? '#dc2626' : '#797269'}
           value={value}
           onChangeText={handleChange}
           onFocus={handleFocus}
           onBlur={handleBlur}
           accessibilityLabel={question.question}
           accessibilityHint={question.placeholder}
-          autoCapitalize="none"
           autoCorrect={false}
           {...question} // Spread all TextInput props from question
         />
       </View>
+
+      {/* Error message */}
+      {error && (
+        <Text
+          className="mt-1 text-sm text-red-500"
+          accessibilityRole="alert"
+          accessibilityLiveRegion="polite">
+          {error}
+        </Text>
+      )}
+
+      {/* Optional helper text from question */}
+      {question.subheading && !error && (
+        <Text className="mt-1 text-sm text-stone-500">{question.subheading}</Text>
+      )}
     </View>
   );
 }

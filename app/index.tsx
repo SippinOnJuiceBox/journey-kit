@@ -20,6 +20,14 @@ export default function Screen() {
           validation: z.string().min(2, 'Name must be at least 2 characters'),
           autoComplete: 'email',
         },
+        {
+          name: 'lastName',
+          question: "What's your last name?",
+          placeholder: 'Enter your last name',
+          type: 'input',
+          validation: z.string().min(2, 'Name must be at least 2 characters'),
+          autoComplete: 'name',
+        },
       ],
     },
     {
@@ -71,13 +79,13 @@ export default function Screen() {
     <Questionnaire
       config={config}
       onCompleted={handleComplete}
-      // renderHeader={({ currentStep, totalSteps }) => (
-      //   <View className="bg-blue-500 p-4">
-      //     <Text className="text-center text-lg text-white">
-      //       Step {currentStep + 1} of {totalSteps}
-      //     </Text>
-      //   </View>
-      // )}
+      renderHeader={({ currentStep, totalSteps }) => (
+        <View className="bg-blue-800 p-2">
+          <Text className="text-center text-lg text-white">
+            Step {currentStep + 1} of {totalSteps}
+          </Text>
+        </View>
+      )}
       // renderQuestion={(question, defaultRender) => (
       //   <View className="my-2 rounded-lg bg-gray-50 p-4">
       //     {defaultRender(question)}

@@ -20,29 +20,78 @@ import { Registry } from './types/QuestionComponents';
 import { QuestionConfig, QuestionQuestion, QuestionComponentProps } from './types/question';
 
 interface QuestionnaireProps {
+  /** Configuration object defining all steps and questions in the questionnaire */
   config: QuestionConfig;
+
+  /** Callback fired when questionnaire is completed. Receives complete form data */
   onCompleted: (formData: Record<string, any>) => Promise<void>;
+
+  /** Optional callback fired whenever the current step changes */
   onStepChange?: (currentStep: number) => void;
+
+  /** Starting step index. Defaults to 0 */
   initialStep?: number;
+
+  /** Optional map of custom question components to override defaults */
   customQuestionComponents?: Record<string, React.ComponentType<QuestionComponentProps>>;
+
+  /** Whether to hide the default header with back button and progress indicator */
   hideHeader?: boolean;
+
+  /** Initial form values to pre-populate fields */
   initialValues?: Record<string, any>;
+
+  /** Path to navigate back to when on first step. Defaults to '/' */
   defaultBackPath?: Href;
-  // New render props
+
+  /**
+   * Optional async validation before proceeding to next step.
+   * Return true to allow navigation, false to prevent
+   */
+  onBeforeNext?: (currentStep: number, formData: Record<string, any>) => Promise<boolean>;
+
+  /**
+   * Optional async validation before going back.
+   * Return true to allow navigation, false to prevent
+   */
+  onBeforeBack?: (currentStep: number) => Promise<boolean>;
+
+  /**
+   * Optional function to programmatically control current step.
+   * Receives setState function to update step index
+   */
+  goToStep?: (setStep: (step: number) => void) => void;
+
+  /**
+   * Custom header renderer. Receives current step info and back handler.
+   * Only used if hideHeader is false.
+   */
   renderHeader?: (props: {
     currentStep: number;
     totalSteps: number;
     onBack: () => void;
   }) => React.ReactNode;
+
+  /**
+   * Custom question renderer. Receives question config and default renderer.
+   * Use to customize individual question display.
+   */
   renderQuestion?: (
     question: QuestionQuestion,
     defaultRender: (question: QuestionQuestion) => React.ReactNode
   ) => React.ReactNode;
+
+  /**
+   * Custom footer renderer. Receives navigation handlers and step state.
+   * Use to customize navigation buttons and progress display.
+   */
   renderFooter?: (props: {
     onNext: () => void;
     isValid: boolean;
     isProcessing: boolean;
     isUploading: boolean;
+    currentStep: number;
+    totalSteps: number;
     onBack: () => void;
   }) => React.ReactNode;
 }
@@ -51,6 +100,8 @@ export default function Questionnaire({
   config,
   onCompleted,
   onStepChange,
+  onBeforeBack,
+  onBeforeNext,
   initialStep = 0,
   customQuestionComponents = {},
   hideHeader,
@@ -59,6 +110,7 @@ export default function Questionnaire({
   renderHeader,
   renderQuestion,
   renderFooter,
+  goToStep,
 }: QuestionnaireProps) {
   const [currentStep, setCurrentStep] = useState(initialStep);
   const [formData, setFormData] = useState<Record<string, any>>(initialValues);
@@ -71,10 +123,19 @@ export default function Questionnaire({
   const router = useRouter();
 
   const { fadeAnim, fadeOut, fadeIn } = useQuestionnaireAnimation();
-  const { isStepValid, validateStep } = useQuestionnaireValidation(config[currentStep], formData);
+  const { isStepValid, validateStep, errors, setFieldDirty } = useQuestionnaireValidation(
+    config[currentStep],
+    formData
+  );
 
-  const handleBack = useCallback(() => {
+  const handleBack = useCallback(async () => {
     if (currentStep > 0) {
+      // Check if we can go back
+      if (onBeforeBack) {
+        const canGoBack = await onBeforeBack(currentStep);
+        if (!canGoBack) return;
+      }
+
       fadeOut();
       setTimeout(() => {
         const previousStep = currentStep - 1;
@@ -87,7 +148,7 @@ export default function Questionnaire({
     } else {
       router.push(defaultBackPath);
     }
-  }, [currentStep, fadeOut, fadeIn, router, stepHistory, defaultBackPath]);
+  }, [currentStep, fadeOut, fadeIn, router, stepHistory, defaultBackPath, onBeforeBack]);
 
   const currentStepData = useMemo(() => config[currentStep], [config, currentStep]);
 
@@ -100,6 +161,12 @@ export default function Questionnaire({
       }));
     }
   }, [initialValues, currentStep]);
+
+  useEffect(() => {
+    if (goToStep) {
+      goToStep(setCurrentStep);
+    }
+  }, [goToStep]);
 
   useEffect(() => {
     onStepChange?.(currentStep);
@@ -115,13 +182,20 @@ export default function Questionnaire({
         }));
         return newFormData;
       });
+      setFieldDirty(name);
       setIsUploading(uploading);
     },
-    [currentStep]
+    [currentStep, setFieldDirty]
   );
 
   const handleNext = useCallback(async () => {
     if (validateStep()) {
+      // Check if we can proceed
+      if (onBeforeNext) {
+        const canProceed = await onBeforeNext(currentStep, formData);
+        if (!canProceed) return;
+      }
+
       fadeOut();
       await new Promise((resolve) => setTimeout(resolve, 200));
 
@@ -152,6 +226,7 @@ export default function Questionnaire({
     validateStep,
     onCompleted,
     stepHistory,
+    onBeforeNext,
   ]);
 
   const defaultQuestionRenderer = useCallback(
@@ -163,6 +238,7 @@ export default function Questionnaire({
           question,
           onChange: handleInputChange,
           value: formData[question.name],
+          error: errors[question.name], // Now errors is in scope
         };
 
         return <QuestionComponent {...commonProps} />;
@@ -171,7 +247,7 @@ export default function Questionnaire({
         return null;
       }
     },
-    [formData, handleInputChange]
+    [formData, handleInputChange, errors] // Add errors to dependencies
   );
 
   return (
@@ -229,6 +305,8 @@ export default function Questionnaire({
         <View className="p-4">
           {renderFooter ? (
             renderFooter({
+              currentStep,
+              totalSteps: config.length,
               onNext: handleNext,
               isValid: isStepValid,
               isProcessing,
